@@ -1,3 +1,7 @@
+# For license and additional information about this code, please refer to https://github.com/niaid/3Dmodel_scripts/blob/master/README.md
+# This script runs in UCSF Chimera, an Extensible Molecular Modeling System from the Resource for Biocomputing, Visualization, and Informatics at UCSF.
+# For additional information about Chimera, visit their home page: http://www.rbvi.ucsf.edu/chimera/ 
+
 import os, sys, subprocess, getopt, math
 
 def usage():
