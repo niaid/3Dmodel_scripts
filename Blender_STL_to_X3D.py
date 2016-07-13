@@ -1,3 +1,7 @@
+# For license and additional information about this code, please refer to https://github.com/niaid/3Dmodel_scripts/blob/master/README.md
+# This script runs in Blender: https://www.blender.org/
+
+
 import os, sys, getopt
 
 def usage():
