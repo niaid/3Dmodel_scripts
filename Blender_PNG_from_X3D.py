@@ -1,3 +1,6 @@
+# For license and additional information about this code, please refer to https://github.com/niaid/3Dmodel_scripts/blob/master/README.md
+# This script runs in Blender: https://www.blender.org/
+
 import os, sys, getopt
 
 # It takes an X3D file and exports a preview PNG for it, an STL with the same model, and a preview PNG for the STL in the "NIH blue" color
