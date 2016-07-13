@@ -13,7 +13,7 @@ Coakley Meghan F., Hurt Darrell E., Weber Nick, Mtingwa Makazi, Fincher Erin C.,
 
 ## Public Domain license
 
-This is free and unencumbered software released into the public domain.
+This is free and unencumbered software released into the public domain. 
 *be kind, and provide attribution when you use this code*
 
 United States government creative works, including writing, images, and computer code, are usually prepared by officers or employees of the United States government as part of their official duties. A government work is generally not subject to copyright in the United States and there is generally no copyright restriction on reproduction, derivative works, distribution, performance, or display of a government work. Unless the work falls under an exception, anyone may, without restriction under U.S. copyright laws:
