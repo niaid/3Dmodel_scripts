@@ -34,11 +34,13 @@ OTHER DEALINGS IN THE SOFTWARE.
 Learn more about how copyright applies to U.S. government works at [USA.gov](https://www.usa.gov/government-works)
 
 
-## Third-party software
+## Attribution for Third-Party Software
 
 These scripts run in open-source third-party applications. 
 
 #### [UCSF Chimera](http://www.cgl.ucsf.edu/chimera)
+Pettersen EF, Goddard TD, Huang CC, Couch GS, Greenblatt DM, Meng EC, Ferrin TE. UCSF Chimera--a visualization system for exploratory research and analysis. J Comput Chem. 2004 Oct;25(13):1605-12. PubMed PMID: 15264254.
+
 To download and use UCSF Chimera, you must abide by [the terms of that license](https://www.cgl.ucsf.edu/chimera/docs/licensing.html). Note that restrictions apply for commercial use. UCSF Chimera is free for noncommerical use.  
 
 #### [Blender](https://www.blender.org/)
