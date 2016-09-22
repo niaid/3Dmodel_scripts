@@ -101,6 +101,7 @@ rc("colordef Tangerine 0.953 0.518 0.000")
 rc("colordef Grape 0.643 0.000 0.867")
 rc("colordef NIH_blue 0.125 0.333 0.541")
 rc("colordef Jmol_carbon 0.565 0.565 0.565")
+rc("colordef Bond_purple 0.576 0.439 0.859")
 
 # remove ribbons and nucleotide rungs if input is PDB file
 rc("~ribbon")
@@ -109,6 +110,12 @@ rc("show")
 
 # thicken for 3D printing
 rc("setattr m stickScale 4 #0")
+rc("~vdwdefine ions")
+rc("vdwdefine +0.35 ions")
+
+# Change coordination complex bonds to sticks
+rc("setattr p drawMode 1") #changes pseudobonds from lines to sticks
+rc("setattr g stickScale 2") #increases pseudobond stick scale
 
 # output color sticks 3D print
 rc("color Jmol_carbon")
@@ -118,22 +125,25 @@ export_wrl("sticks-color")
 
 # output monochrome sticks 3D print
 rc("color NIH_blue")
+rc("setattr p color NIH_blue")
 export_scene("sticks")
 export_stl("sticks")
 
-
 # spheres for 3D printing
 rc("represent cpk")
+rc("setattr p drawMode 0") #changes pseudobonds from sticks to lines
 
 # output color CPK 3D print
 rc("color Jmol_carbon")
 rc("color byhet,a")
+rc("setattr p color Bond_purple")
 rc("vdwdefine +0.15 element.H")  #rescale H atoms to get better-looking balls
 export_scene("CPK-color")
 export_wrl("CPK-color")
 
 # output monochrome CPK 3D print
 rc("color NIH_blue")
+rc("setattr p color NIH_blue")
 export_scene("CPK")
 export_stl("CPK")
 rc("~vdwdefine")      #rescale H atoms to default vdw radii
@@ -142,17 +152,23 @@ rc("~vdwdefine")      #rescale H atoms to default vdw radii
 #Default stickScale=1.0 and ballScale=0.25
 rc("represent bs")
 rc("vdwdefine +0.2 element.H")  #rescale H atoms to look more like balls
+rc("~vdwdefine ions")
+rc("vdwdefine +1.5 ions")
 rc("setattr m stickScale 1.2")
 rc("setattr m ballScale 0.3")
+rc("setattr p drawMode 1") #changes pseudobonds from lines to sticks
+rc("setattr g stickScale 1") #increases pseudobond stick scale
 
 # output color ball-and-stick 3D print
 rc("color Jmol_carbon")
 rc("color byhet,a")
+rc("setattr p color Bond_purple")
 export_scene("bas-color")
 export_wrl("bas-color")
 
 # output monochrome ball-and-stick 3D print
 rc("color NIH_blue")
+rc("setattr p color NIH_blue")
 export_scene("bas")
 export_stl("bas")
 rc("~vdwdefine")   #rescale H atoms to default vdw radii
