@@ -5,6 +5,22 @@
 
 # Script name: Chimera_Molecular.py
 #
+# Version 2.0
+#
+# Comments:
+#
+# Changed the increase in ion radius from 1.8 to 0.8
+# Restricted the presence of nucleotide ladders to common nucleobases (DNA and RNA) only
+# Added hydrogen bonds as struts, restricted to hbonds between exposed atoms, ribbons, nucleotide backbone only.  Hbond are colored white.
+# Changed pseudobond display from dashes to cylinders.  Coordination bonds and missing segments will now be included in the model.
+# Missing segment radius increased relative to other pseudobonds
+# Atoms in disufide bonds are displayed to act as additional struts
+# Changes to arbitrary struts; loop length increased to 70, radius deceased to 0.75, color changed from white to light grey
+# Ribbon cross section changed from octagon to hexadecagon, increasing number of faces
+# Ribbon thickness increased in the preferences file
+# All displayed carbon atoms are now colored dark grey
+# All other displayed atoms are always colored by element (including ions, which were previously colored white)
+# Thick ribbon models have been commented out
 #
 # Input:  Either a 4 character PDB accession code or a molecule file designation.
 #         Allowed file types: .pdb .pdb1 .cif .fchk .gro .mae .mol .mol2 .sdf .ent
@@ -139,6 +155,8 @@ rc("colordef Forest 0.133 0.545 0.133")
 rc("colordef Tangerine 0.953 0.518 0.000")
 rc("colordef Grape 0.643 0.000 0.867")
 rc("colordef NIH_blue 0.125 0.333 0.541")
+rc("colordef Struts_grey 0.480 0.480 0.480")
+rc("colordef Carbon_grey 0.222 0.222 0.222")
 
 
 # initial processing
@@ -177,15 +195,29 @@ elif (numAtoms < 25000) or (rib == 1):
 
 # make ribbon ready for 3D printing
    rc("setattr m stickScale 4 #0")
-   rc("vdwdef +1.4 ions")
+   rc("vdwdef +0.8 ions")
 #   rc("nucleotides sidechain tube/slab thickness 1")
    rc("ribbon nucleic acid")      # fixes bug in representing some NA chains
-   rc("nucleotides sidechain ladder radius 1.2")
-   rc("struts @ca|ligand|element.P|#/numAtoms<500 length 8 loop 30 rad .6 color white")
-   rc("ribscale 3d_print #0")     # fixes bug in struts command, need "3d_print" definition in prefernces file
+   rc("select :/type=A | :/type=U | :/type=C | :/type=G | :/type=DA | :/type=DT | :/type=DG | :/type=DC") #restricts nucleic acid ladder to known nucleic acids (not ATP etc)
+   rc("nucleotides sidechain ladder radius 1.2 sel")
+   rc("~select :all")
+   rc("select backbone.full & protein | nucleic acid & backbone.minimal | ions | ligand | ligand zr< 5 &~nucleic acid") #restricts the addition of hydrogen bonds to backbone atoms, ions, ligands, and atoms within 5A of ligands (but not nucleobases within 5A of ligands)
+   rc("hbond color white selRestrict both")
+   rc("setattr p drawMode 1") #changes pseudobonds from lines to sticks
+   rc("setattr g stickScale 3") #increases pseudobond stick scale
+   rc("setattr g stickScale 5.5 @c,n") #increases missing segment pseudobond stick scale relative to hbond
+   rc("setattr g stickScale 5.5 @n,n") #increases missing segment pseudobond stick scale relative to hbond
+   rc("~select :all")
+   rc("select disulfide") #displays disulfide bonds at sticks (extra struts)
+   rc("select up")
+   rc("display sel")
+   rc("bondrepr stick sel")
+   rc("~select :all")
+   rc("struts @ca|ligand|element.P|#/numAtoms<500 length 8 loop 70 rad 0.75 color Struts_grey") #adds struts to P atoms
    rc("~struts @PB,PG")
    rc("~struts \"nucleoside base.all of the above\"")
-   rc("ribrepr large_octagon #0") # reduces ribbon complexity, need "large_octagon" definition in preferences file
+   rc("ribscale 3d_print #0")     # fixes bug in struts command, need "3d_print" definition in preferences file
+   rc("ribrepr hexadecagon #0") # reduces ribbon complexity, need "hexadecagon" definition in preferences file
    rc("set subdivisionPixels 10") # reduces ribbon complexity
 #rc("ribscale for 3Dprint1round")
 
@@ -193,14 +225,22 @@ elif (numAtoms < 25000) or (rib == 1):
    rc("color white")
    rc("color Marine helix; color Firebrick strand; color Gold coil; color Forest nucleic acid")
    rc("color Grape :/type=A; color Grape :/type=C; color Grape :/type=G; color Grape :/type=U")
+   rc("color byatom")
+   rc("select C & ligand | C & ligand zr< 5 &~nucleic acid| C & protein| C & disulfide") #restricts atomic selection to displayed Carbon atoms
+   rc("color Carbon_grey,a sel") #colors selected residues dark grey
    rc("color byhet,a ligand|protein&side chain/base.without CA/C1'")
+   rc("~select :all")
    export_scene("ribbon-secondary")
 
 # output rainbow color 3D print
    rc("color white")
    rc("rainbow @CA")
    rc("color white,a side chain/base.without CA/C1'")
-   rc("color byhet")
+   rc("color byatom")
+   rc("select C & ligand | C & ligand zr< 5 &~nucleic acid| C & protein| C & disulfide") #restricts atomic selection to displayed Carbon atoms
+   rc("color Carbon_grey,a sel") #colors selected residues dark grey
+   rc("color byhet,a ligand|protein&side chain/base.without CA/C1'")
+   rc("~select :all")
    export_scene("ribbon-rainbow")
 
 # output colored by chain ribbon 3D print
@@ -218,8 +258,11 @@ elif (numAtoms < 25000) or (rib == 1):
        rc("rainbow chain Marine,Gold,Firebrick,Forest,Tangerine,Grape @CA")
    else:
        rc("rainbow chain @CA")
-#rc("color white,a nucleic acid&side chain/base.without CA/C1'")
-   rc("color byhet,a protein&side chain/base.without CA/C1'")
+   rc("color byatom")
+   rc("select C & ligand | C & ligand zr< 5 &~nucleic acid| C & protein| C & disulfide") #restricts atomic selection to displayed Carbon atoms
+   rc("color Carbon_grey,a sel") #colors selected residues dark grey
+   rc("color byhet,a ligand|protein&side chain/base.without CA/C1'")
+   rc("~select :all")
    export_scene("ribbon-bychain")
 
 # output monochrome ribbon 3D print
@@ -228,14 +271,14 @@ elif (numAtoms < 25000) or (rib == 1):
    export_scene("ribbon")
 
 # output monochrome thick ribbon 3D print
-   rc("~nucleotides")
-   rc("represent sphere")
-   rc("vdwdefine +0.4")
-   rc("ribrepr rounded #0")
-   rc("~struts")
-   rc("struts @ca|ligand|element.P|#/numAtoms<500 length 6.5 color NIH_blue")
-   rc("ribscale thick_ribbon #0") # need "thick_ribbon" definition in preferences file
-   export_scene("ribbon-thick")
+   #rc("~nucleotides")
+   #rc("represent sphere")
+   #rc("vdwdefine +0.4")
+   #rc("ribrepr rounded #0")
+   #rc("~struts")
+   #rc("struts @ca|ligand|element.P|#/numAtoms<500 length 6.5 color NIH_blue")
+   #rc("ribscale thick_ribbon #0") # need "thick_ribbon" definition in preferences file
+   #export_scene("ribbon-thick")
 
 ######################## SURFACES ###############################################
 # Prep for surfaces
