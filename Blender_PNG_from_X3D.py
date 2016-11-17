@@ -1,6 +1,3 @@
-# For license and additional information about this code, please refer to https://github.com/niaid/3Dmodel_scripts/blob/master/README.md
-# This script runs in Blender: https://www.blender.org/
-
 import os, sys, getopt
 
 # It takes an X3D file and exports a preview PNG for it, an STL with the same model, and a preview PNG for the STL in the "NIH blue" color
@@ -35,9 +32,10 @@ for o, a in opts:
 
 # open the file
 if len(args) == 1:
-    X3D_file = args[0]
-    input_name, ext  = os.path.splitext(X3D_file)
+    Src_file = args[0]
+    input_name, ext  = os.path.splitext(Src_file)
     PNG_file = input_name + ".png"
+    X3D_file = input_name + ".x3d"
 else:
     print("\nError: You must specify a single X3D file")
     usage()
@@ -53,15 +51,18 @@ bpy.ops.object.select_by_type(extend=False, type='LAMP')
 bpy.ops.object.delete(use_global=False)
 
 # IMPORT THE MESH
-print("importing " + X3D_file + "\n")
-bpy.ops.import_scene.x3d(filepath = X3D_file)
+print("importing " + Src_file + "\n")
+bpy.ops.import_scene.x3d(filepath = Src_file)
 
 # DELETE THE OTHER IMPORTED OBJECTS
-print("Deleting the imported lamps and curves\n")
+print("Deleting the imported lamps, curves, cameras\n")
 bpy.ops.object.select_by_type(extend=False, type='LAMP')
 bpy.ops.object.delete(use_global=False)
 bpy.ops.object.select_by_type(extend=False, type='CURVE')
 bpy.ops.object.delete(use_global=False)
+bpy.ops.object.select_by_type(extend=False, type='CAMERA')
+bpy.ops.object.delete(use_global=False)
+
 
 # Check to see if each mesh has "Col" vertex group;
 # if so, then turn on vertex color
@@ -87,10 +88,12 @@ for mesh_object in bpy.context.selected_objects:
 
 # CAMERA
 print("Setting camera\n")
+cam = bpy.data.cameras.new("TheCamera")
+cam.clip_end = 1000000
+bpycam = bpy.data.objects.new("TheCamera", cam)
+bpy.context.scene.camera = bpycam 
 bpy.ops.object.select_by_type(extend=False, type='MESH')
-bpy.context.scene.camera = bpy.data.objects['Camera']
 bpy.ops.view3d.camera_to_view_selected()
-bpy.data.cameras['Camera'].clip_end = 1000000
   
 # SET SCENE
 print("Setting the background color\n")
