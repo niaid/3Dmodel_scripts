@@ -5,6 +5,17 @@
 
 # Script name: Chimera_Molecular.py
 #
+# Version 2.2
+# Comments:
+#
+# Handle situation of large (>250,000 atoms) structures from a submitted PDB file (-f option).  Can't assume that all information for "sym" command will be present.
+# Make range for mapping colors to surfaces consistent across all methods.
+#
+# Version 2.1
+# Comments:
+#
+# Changes to allow more than 64 chains.
+# Added resolution argument to the sym command for large surfaces. First try resolution 4 and if that fails will try resolution 8.
 # Version 2.0
 #
 # Comments:
@@ -83,6 +94,8 @@ except getopt.GetoptError, err:
     print (str(err))
     usage()
     sys.exit(2)
+    
+infile = "default"  #Will stay "default" if -c PDB code is used    
 
 for o, a in opts:
     if o in ("-h", "--help"):
@@ -213,7 +226,7 @@ elif (numAtoms < 25000) or (rib == 1):
    rc("display sel")
    rc("bondrepr stick sel")
    rc("~select :all")
-   rc("struts @ca|ligand|element.P|#/numAtoms<500 length 8 loop 70 rad 0.75 color Struts_grey") #adds struts to P atoms
+   rc("struts @ca|ligand|element.P|#/numAtoms<500 length 8 loop 60 rad 0.75 color Struts_grey") #adds struts to P atoms
    rc("~struts @PB,PG")
    rc("~struts \"nucleoside base.all of the above\"")
    rc("ribscale 3d_print #0")     # fixes bug in struts command, need "3d_print" definition in preferences file
@@ -288,18 +301,28 @@ rc("select protein|nucleic acid; select invert sel; delete sel")   # delete ever
 if numAtoms < 25000:      #Only do slow addition of hydrogens if <25000 atoms
    rc("addh")             # protonate
 
+rc("~select :all")
+rc("~nuc")                #hide nucleotide ladders
 rc("~ribbon")             # hide the ribbon
 rc("~display")            # hide the atoms
 #rc("split")
 
-if numAtoms <250000:
+if (numAtoms <250000) or (infile != "default"):
    #If there are submodels, combine them into single new model in #0
+   numSubmodelsP = 2
    if len([m for m in openModels.list(modelTypes=[Molecule])]) > 1:
-      rc("combine #0 newchainids true modelID 0 close true")
+      try:
+        rc("combine #0 newchainids true modelID 0 close true")
+        numSubmodelsP = 2   #This needs LOTS of testing
+      except:
+        numSubmodels = len(openModels.list(modelTypes=[Molecule]))
+        numSubmodelsP = numSubmodels + 1   #to get loop index range right
    # Generate surface
    gridSizeStr = str(gridSize)
-   rc("surface #0 grid " + gridSizeStr)
-
+   rc("surface #0 grid " + gridSizeStr + " warnLarge false")
+   if numAtoms > 250000:
+     chimera.viewer.viewAll()
+     rc("scale 0.9")
 
    # output monochrome surface 3D print
    rc("color NIH_blue")
@@ -318,10 +341,19 @@ if numAtoms <250000:
    # check for protein (only works on amino acids)
    rc("select protein")
    if len(selection.currentAtoms()) > 0:
+      rc("~select")
       rc("color magenta #0")
       rc("rangecolor kdHydrophobicity min 0.16,0.67,0.87 max 1.00,0.45,0.00 mid white novalue magenta #0")
-      rc("scolor #1 zone #0")
-      export_scene("surf-hydropathy")
+   #Need to loop from 1 to numSubmodels and put into scolor #1
+   for surfs in range(1, numSubmodelsP):
+     try:
+       rc("scolor #" + str(surfs) + " zone #0 range 6.0")
+     except:
+       try:
+         rc("scolor #0." + str(surfs) + " zone #0 range 6.0")
+       except:
+         pass
+   export_scene("surf-hydropathy")
 
    # output colored by chain surface 3D print
    if len(openModels.list(modelTypes=[Molecule])[0].sequences()) == 1:
@@ -340,7 +372,15 @@ if numAtoms <250000:
        rc("rainbow chain @CA")
    #rc("color white,a nucleic acid&side chain/base.without CA/C1'")
    #rc("color byhet,a protein&side chain/base.without CA/C1'")
-   rc("scolor #1 zone #0 range 6.0")
+   for surfs in range(1, numSubmodelsP):
+#       #rc("scolor #1 zone #0 range 6.0")
+       try:
+         rc("scolor #" + str(surfs) + " zone #0 range 6.0")
+       except:
+         try:
+           rc("scolor #0." + str(surfs) + " zone #0 range 6.0")
+         except:
+           print "failed"
    export_scene("surf-bychain")
 
 
@@ -372,7 +412,7 @@ if numAtoms <250000:
 #os.remove(temp_pqr_name)
 #os.remove(temp_dx_name)
 
-else:     #greater than 250000 atoms
+else:     #greater than 250000 atoms and from RCSB
    #close the structure then open the pdb and not bio unit
    rc("close #0")
    try:
@@ -389,7 +429,10 @@ else:     #greater than 250000 atoms
    rc("delete ligand|ions")  # remove ligands and ions
    rc("select protein|nucleic acid; select invert sel; delete sel")   # delete everything that isn't amino or nucleic
    #Use sym command to make surface, analogous to MultiScale 
-   rc("sym #0 surfaces all")
+   try:
+     rc("sym #0 surfaces all resolution 4")
+   except:
+     rc("sym #0 surfaces all resolution 8")
    rc("~ribbon #0")   #turn off ribbon since they may protrude from surface
    rc("~display #0")  #turn off atoms since they may protrude from surface
 
