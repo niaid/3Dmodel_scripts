@@ -10,7 +10,7 @@ The Exchange is owned and maintained by the Office of Cyber Infrastructure and C
 For more information, and when citing the NIH 3D Print Exchange, please refer to: 
 Coakley Meghan F., Hurt Darrell E., Weber Nick, Mtingwa Makazi, Fincher Erin C., Alekseyev Vsevelod, Chen David T., Yun Alvin, Gizaw Metasebia, Swan Jeremy, Yoo Terry S., and Huyen Yentram. 3D Printing and Additive Manufacturing. September 2014, 1(3): 137-140. doi: 10.1089/3dp.2014.1503.
 
-<br>The free, full-text article can be found in PubMed Central [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981148/).
+The free, full-text article can be found in PubMed Central [here](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4981148/).
 
 
 ## Attribution for Third-Party Software
